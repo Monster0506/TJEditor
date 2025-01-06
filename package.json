@@ -5,9 +5,16 @@
   "type": "module",
   "main": "dist/main.js",
   "types": "dist/main.d.ts",
+  "License": "MIT",
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/monster0506/tjeditor.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
