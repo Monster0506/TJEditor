@@ -194,7 +194,7 @@
 - Press Enter to select
 - Press Escape to cancel
 
-Example usage:
+## Example usage:
 
 ```markdown
 Type [[to see link suggestions:
