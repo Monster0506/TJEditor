@@ -57,6 +57,8 @@ const useDebounce = (value, delay = DEFAULT_DEBOUNCE_MS) => {
 const PreviewPopup = ({ url, title, onClose, previewContent }) => {
   const popupRef = useRef(null);
   const [content, setContent] = useState("");
+  const [previewType, setPreviewType] = useState(null);
+  const [previewData, setPreviewData] = useState(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -70,7 +72,13 @@ const PreviewPopup = ({ url, title, onClose, previewContent }) => {
 
   useEffect(() => {
     const loadPreview = async () => {
-      if (previewContent) {
+      if (url.startsWith("wiki:")) {
+        setPreviewType("wiki");
+        setPreviewData(url.substring(5));
+      } else if (url.startsWith("doi:")) {
+        setPreviewType("doi");
+        setPreviewData(url.substring(4));
+      } else if (previewContent) {
         const preview = await previewContent(url);
         setContent(preview);
       }
@@ -88,14 +96,22 @@ const PreviewPopup = ({ url, title, onClose, previewContent }) => {
         <div className="preview-header">
           <span>
             <h3>
-              <a href={url}>{title}</a>
-            </h3>{" "}
+              <a href={previewType === "wiki" ? `https://en.wikipedia.org/wiki/${previewData}` :
+                previewType === "doi" ? `https://doi.org/${previewData}` :
+                  url}>
+                {title}
+              </a>
+            </h3>
             <span className="preview-url">{url}</span>
           </span>
           <button onClick={onClose}>&times;</button>
         </div>
         <div className="preview-content">
-          {content ? (
+          {previewType === "wiki" ? (
+            <WikiPreview title={previewData} />
+          ) : previewType === "doi" ? (
+            <DOIPreview doi={previewData} />
+          ) : content ? (
             <ReactMarkdown
               remarkPlugins={[remarkMath, remarkGfm]}
               rehypePlugins={[rehypeKatex, rehypeRaw, rehypeSlug]}
@@ -141,7 +157,7 @@ const PreviewPopup = ({ url, title, onClose, previewContent }) => {
               {processedContent}
             </ReactMarkdown>
           ) : (
-            "Loading preview..."
+            "Loading..."
           )}
         </div>
       </div>
@@ -424,6 +440,149 @@ const CodeBlock = ({ code, language, onCopy }) => {
   );
 };
 
+const DOIPreview = ({ doi }) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchDOIContent = async () => {
+      try {
+        const response = await fetch(
+          `http://doi-extract.vercel.app/api/doi/${encodeURIComponent(doi)}`
+        );
+        const jsonData = await response.json();
+        setData(jsonData);
+      } catch (error) {
+        setError("Failed to load DOI preview");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDOIContent();
+  }, [doi]);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="error-message">{error}</div>;
+  if (!data) return <div>No data available</div>;
+
+  const citationString = `${data.authors.join(", ")} (${data.year}). ${data.title}. ${data.fullJournal
+    }${data.volume ? `, ${data.volume}` : ""}${data.issue ? `(${data.issue})` : ""}${data.firstPage && data.lastPage ? `, ${data.firstPage}-${data.lastPage}` : ""
+    }. DOI: ${data.doi}`;
+
+  return (
+    <div className="doi-preview">
+      <div className="doi-header">
+        <div className="doi-title">{data.title}</div>
+        <div className="doi-meta">
+          <span>{data.fullJournal}</span>
+          {data.volume && <span>Volume {data.volume}</span>}
+          {data.issue && <span>Issue {data.issue}</span>}
+          <span>{data.year}</span>
+        </div>
+        <div className="doi-authors">
+          {data.authors.map((author, index) => (
+            <span key={index}>
+              {author}
+              {index < data.authors.length - 1 ? ", " : ""}
+            </span>
+          ))}
+        </div>
+      </div>
+      {data.abstract && (
+        <div className="doi-abstract">
+          <strong>Abstract:</strong>
+          <p>{data.abstract}</p>
+        </div>
+      )}
+      <div className="doi-citation">
+        <strong>Citation:</strong>
+        <p>{citationString}</p>
+      </div>
+
+      <a href={`https://doi.org/${doi}`} target="_blank" rel="noopener noreferrer" className="doi-full-article">
+        Read full article
+      </a>
+    </div>
+  );
+};
+
+const WikiPreview = ({ title }) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchWikiContent = async () => {
+      try {
+        const response = await fetch(
+          `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
+        );
+        const summaryData = await response.json();
+
+        // Fetch additional page data
+        const pageResponse = await fetch(
+          `https://en.wikipedia.org/api/rest_v1/page/title/${encodeURIComponent(title)}`
+        );
+        const pageData = await pageResponse.json();
+        const metadata = pageData["items"][0]
+
+        setData({
+          ...summaryData,
+          metadata: metadata
+        });
+      } catch (error) {
+        setError("Failed to load Wikipedia preview");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchWikiContent();
+  }, [title]);
+
+  if (loading) return <div className="loading">Loading...</div>;
+  if (error) return <div className="error-message">{error}</div>;
+  if (!data) return <div>No content available</div>;
+  console.log(data);
+
+  return (
+    <div className="wiki-preview">
+      <div className="wiki-content">
+        <div className="wiki-title">
+          <h2>{data.title}</h2>
+          {data.description && <p className="wiki-description">{data.description}</p>}
+        </div>
+        <div className="wiki-extract">
+          {data.extract_html ? (
+            <div dangerouslySetInnerHTML={{ __html: data.extract_html }} />
+          ) : (
+            <p>{data.extract_html}</p>
+          )}
+        </div>
+        <div className="wiki-meta">
+          {data.metadata && (
+            <>
+              <div className="wiki-stats">
+                <span>Last modified: {new Date(data.metadata.timestamp).toLocaleDateString()}</span>
+              </div>
+            </>
+          )}
+          <div className="wiki-links">
+            <a
+              href={`https://en.wikipedia.org/wiki/${encodeURIComponent(title)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="wiki-full-article"
+            >
+              Read Wikipedia article
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const processCustomSyntax = (content) => {
   if (!content) return "";
 
@@ -451,6 +610,16 @@ const processCustomSyntax = (content) => {
       return `<callout type="${type}">${content}</callout>`;
     },
   );
+
+  // Process wiki links
+  processed = processed.replace(/\[(.*?)\]\(wiki:(.*?)\)/g, (_, text, page) => {
+    return `<greenlink href="wiki:${page}">${text}</greenlink>`;
+  });
+
+  // Process DOI links
+  processed = processed.replace(/\[(.*?)\]\(doi:(.*?)\)/g, (_, text, doi) => {
+    return `<greenlink href="doi:${doi}">${text}</greenlink>`;
+  });
 
   // Process internal links
   processed = processed.replace(/\[\[(.*?)\]\]\((.*?)\)/g, (_, text, url) => {

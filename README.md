@@ -45,6 +45,9 @@
 - Callouts: `::type content`
 - Spoilers: `||content||`
 - Custom line breaks: `{\n}`
+- External references:
+  - Wikipedia: `[Text](wiki:Page_Title)`
+  - DOI: `[Text](doi:10.1234/example)`
 
 ## Interactive Features
 
@@ -55,6 +58,9 @@
 - Nested link support
 - Custom link click handlers
 - Preview popup system for internal links
+- External reference previews:
+  - Wikipedia: Article extract, description, thumbnail, and metadata
+  - DOI: Paper title, authors, journal info, abstract, and formatted citation
 
 ### 2. Code Blocks
 
@@ -206,7 +212,7 @@ Type :: to see callout types:
 ::warning This is a warning
 ```
 
-````markdown
+```markdown
 # Interactive Elements Demo
 
 ## 1. Internal Links with Preview
@@ -264,12 +270,18 @@ $$\sum_{i=1}^n i = \frac{n(n+1)}{2}$$
 \```javascript
 
 function demo() {
-
 console.log("Syntax highlighted!");
-
 }
 
 \```
+
+## 8. External References
+
+### Wikipedia References
+[Neural Networks](wiki:Neural_network)
+
+### DOI References
+[Research Paper](doi:10.1234/example)
 
 Each element has special features:
 
@@ -341,5 +353,22 @@ Each element has special features:
 
    - `{\n}` can be written as `{\\n}` with only one backslash
 
+8. External References:
+   1. Wikipedia References `[title](wiki:page_title)`
+      - Article title and description
+      - Main extract with HTML formatting
+      - Thumbnail image (if available)
+      - Last modified date
+      - Link to full article
+
+   2. DOI References `[title](doi:doi/number)`
+      - Paper title
+      - Authors list
+      - Journal information (name, volume, issue)
+      - Publication year
+      - Abstract
+      - Formatted citation
+      - Link to full paper
+
+```
 All elements can be nested and combined (except code blocks), and they all support markdown formatting inside them.
-````

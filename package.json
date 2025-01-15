@@ -16,7 +16,7 @@
     "url": "https://github.com/monster0506/tjeditor.git"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "vite build && vite",
     "build": "vite build",
     "prepublishOnly": "npm run build",
     "lint": "eslint .",
