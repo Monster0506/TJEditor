@@ -96,9 +96,15 @@ const PreviewPopup = ({ url, title, onClose, previewContent }) => {
         <div className="preview-header">
           <span>
             <h3>
-              <a href={previewType === "wiki" ? `https://en.wikipedia.org/wiki/${previewData}` :
-                previewType === "doi" ? `https://doi.org/${previewData}` :
-                  url}>
+              <a
+                href={
+                  previewType === "wiki"
+                    ? `https://en.wikipedia.org/wiki/${previewData}`
+                    : previewType === "doi"
+                      ? `https://doi.org/${previewData}`
+                      : url
+                }
+              >
                 {title}
               </a>
             </h3>
@@ -233,6 +239,34 @@ const Greenlink = ({ href, children, onClick, isNested = false }) => {
         </div>
       )}
     </span>
+  );
+};
+
+const Flashcard = ({ question, children }) => {
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  const handleFlip = () => {
+    setIsFlipped(!isFlipped);
+  };
+
+  return (
+    <div
+      onClick={handleFlip}
+      className={`flashcard ${isFlipped ? 'flipped' : ''}`}
+    >
+      <div className="flashcard-inner">
+        <div className="flashcard-front">
+          <div className="flashcard-content">
+            <div className="flashcard-question">{question}</div>
+          </div>
+        </div>
+        <div className="flashcard-back">
+          <div className="flashcard-content">
+            <div className="flashcard-answer">{children}</div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -449,7 +483,7 @@ const DOIPreview = ({ doi }) => {
     const fetchDOIContent = async () => {
       try {
         const response = await fetch(
-          `http://doi-extract.vercel.app/api/doi/${encodeURIComponent(doi)}`
+          `http://doi-extract.vercel.app/api/doi/${encodeURIComponent(doi)}`,
         );
         const jsonData = await response.json();
         setData(jsonData);
@@ -466,9 +500,13 @@ const DOIPreview = ({ doi }) => {
   if (error) return <div className="error-message">{error}</div>;
   if (!data) return <div>No data available</div>;
 
-  const citationString = `${data.authors.join(", ")} (${data.year}). ${data.title}. ${data.fullJournal
-    }${data.volume ? `, ${data.volume}` : ""}${data.issue ? `(${data.issue})` : ""}${data.firstPage && data.lastPage ? `, ${data.firstPage}-${data.lastPage}` : ""
-    }. DOI: ${data.doi}`;
+  const citationString = `${data.authors.join(", ")} (${data.year}). ${data.title}. ${
+    data.fullJournal
+  }${data.volume ? `, ${data.volume}` : ""}${data.issue ? `(${data.issue})` : ""}${
+    data.firstPage && data.lastPage
+      ? `, ${data.firstPage}-${data.lastPage}`
+      : ""
+  }. DOI: ${data.doi}`;
 
   return (
     <div className="doi-preview">
@@ -500,7 +538,12 @@ const DOIPreview = ({ doi }) => {
         <p>{citationString}</p>
       </div>
 
-      <a href={`https://doi.org/${doi}`} target="_blank" rel="noopener noreferrer" className="doi-full-article">
+      <a
+        href={`https://doi.org/${doi}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="doi-full-article"
+      >
         Read full article
       </a>
     </div>
@@ -516,20 +559,20 @@ const WikiPreview = ({ title }) => {
     const fetchWikiContent = async () => {
       try {
         const response = await fetch(
-          `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
+          `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`,
         );
         const summaryData = await response.json();
 
         // Fetch additional page data
         const pageResponse = await fetch(
-          `https://en.wikipedia.org/api/rest_v1/page/title/${encodeURIComponent(title)}`
+          `https://en.wikipedia.org/api/rest_v1/page/title/${encodeURIComponent(title)}`,
         );
         const pageData = await pageResponse.json();
-        const metadata = pageData["items"][0]
+        const metadata = pageData["items"][0];
 
         setData({
           ...summaryData,
-          metadata: metadata
+          metadata: metadata,
         });
       } catch (error) {
         setError("Failed to load Wikipedia preview");
@@ -550,7 +593,9 @@ const WikiPreview = ({ title }) => {
       <div className="wiki-content">
         <div className="wiki-title">
           <h2>{data.title}</h2>
-          {data.description && <p className="wiki-description">{data.description}</p>}
+          {data.description && (
+            <p className="wiki-description">{data.description}</p>
+          )}
         </div>
         <div className="wiki-extract">
           {data.extract_html ? (
@@ -563,7 +608,10 @@ const WikiPreview = ({ title }) => {
           {data.metadata && (
             <>
               <div className="wiki-stats">
-                <span>Last modified: {new Date(data.metadata.timestamp).toLocaleDateString()}</span>
+                <span>
+                  Last modified:{" "}
+                  {new Date(data.metadata.timestamp).toLocaleDateString()}
+                </span>
               </div>
             </>
           )}
@@ -599,8 +647,12 @@ const processCustomSyntax = (content) => {
   });
 
   // Inline spoilers
-  processed = processed.replace(/\|\|(.*?)\|\|/g, (_, content) => {
+  processed = processed = processed.replace(/\|\|(.*?)\|\|/g, (_, content) => {
     return `<spoiler>${content}</spoiler>`;
+  });
+
+  processed = processed.replace(/>>(.*?)>>(.*?)>>/g, (_c, question, answer) => {
+    return `<flashcard type="${answer}">${question}</flashcard>`;
   });
 
   // Process callouts
@@ -701,6 +753,11 @@ export const TJRenderer = ({
             <QuickAside content={content} />
           ),
           spoiler: ({ node, children }) => <Spoiler>{children}</Spoiler>,
+
+          flashcard: ({ node, type, children }) => (
+            <Flashcard question={type}>{children}</Flashcard>
+          ),
+
           callout: ({ node, type, children }) => (
             <Callout type={type} icons={calloutIcons}>
               {children}

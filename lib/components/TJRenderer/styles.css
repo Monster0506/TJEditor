@@ -12,7 +12,6 @@
 
   /* Border colors */
   --border-color: #e2e8f0;
-
 }
 
 /* Add the pulse animation */
@@ -212,7 +211,7 @@
   padding: 1rem;
 }
 
-.renderer-container pre[class*="language-"]>code {
+.renderer-container pre[class*="language-"] > code {
   padding: 0;
   margin: 0;
 }
@@ -298,19 +297,19 @@
 }
 
 /* Block spoiler styles */
-p>.spoiler {
+p > .spoiler {
   display: block;
   padding: 1rem;
   margin: 1rem 0;
   background: #1a1a1a;
 }
 
-p>.spoiler.revealed {
+p > .spoiler.revealed {
   background: #f5f5f5;
   border: 1px solid #e0e0e0;
 }
 
-p>.spoiler .spoiler-overlay {
+p > .spoiler .spoiler-overlay {
   font-size: 0.9em;
 }
 
@@ -380,15 +379,15 @@ p>.spoiler .spoiler-overlay {
   transform: translateX(-50%) translateY(-8px);
   background: white;
   padding: 1rem;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   font-size: 0.9rem;
   color: #1a202c;
   min-width: 300px;
   max-width: 500px;
   z-index: 1000;
-  border: 1px solid #e2e8f0;
-  animation: tooltipSlideIn 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  color: #1a202c;
   font-weight: normal;
   text-align: left;
 }
@@ -1024,8 +1023,6 @@ a:not(.greenlink):hover {
   margin: 0.5rem;
 }
 
-
-
 .loading {
   text-align: center;
   padding: 1rem;
@@ -1128,7 +1125,7 @@ a:not(.greenlink):hover {
   text-decoration: none;
   font-weight: 500;
 }
-a[href*="wiki:"]::after { 
+a[href*="wiki:"]::after {
   content: " w";
   font-family: "Times New Roman", Times, serif;
   font-style: italic;
@@ -1140,7 +1137,7 @@ a[href*="wiki:"]::after {
   font-size: 0.9em;
   margin-left: 2px;
 }
-a[href*="doi:"]::after { 
+a[href*="doi:"]::after {
   content: " d";
   font-family: "Times New Roman", Times, serif;
   font-style: italic;
@@ -1237,4 +1234,122 @@ a[href*="doi:"]::after {
     max-width: 300px;
     margin: 0 auto;
   }
+}
+
+/* Flashcard styles */
+.flashcard {
+  perspective: 1000px;
+  margin: 4rem auto;
+  padding-bottom: 2rem;
+  cursor: pointer;
+  width: 500px;
+  height: 300px;
+  position: relative;
+  clear: both; /* Ensure it doesn't float around other content */
+}
+
+.flashcard::after {
+  content: '';
+  display: block;
+  height: 2rem;
+  width: 100%;
+  clear: both;
+}
+
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  border-radius: 16px;
+}
+
+.flashcard:hover .flashcard-inner {
+  transform: translateY(-5px);
+}
+
+.flashcard.flipped .flashcard-inner {
+  transform: rotateY(180deg);
+}
+
+.flashcard-front,
+.flashcard-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+.flashcard-front {
+  background: linear-gradient(145deg, #ffffff 0%, #f0f7ff 100%);
+  border: 1px solid rgba(66, 153, 225, 0.1);
+}
+
+.flashcard-back {
+  background: linear-gradient(145deg, #ffffff 0%, #fff5f5 100%);
+  border: 1px solid rgba(225, 66, 66, 0.1);
+  transform: rotateY(180deg);
+}
+
+.flashcard-content {
+  width: 100%;
+  max-width: 90%;
+  margin: 0 auto;
+}
+
+.flashcard-question {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2d3748;
+  line-height: 1.4;
+  margin: 0;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.flashcard-answer {
+  font-size: 1.3rem;
+  color: #2d3748;
+  line-height: 1.5;
+  margin: 0;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* Add card edge effect */
+.flashcard-front::before,
+.flashcard-back::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 50%);
+  pointer-events: none;
+}
+
+/* Add subtle corner lines */
+.flashcard-front::after,
+.flashcard-back::after {
+  content: '';
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border-top: 2px solid rgba(0, 0, 0, 0.1);
+  border-left: 2px solid rgba(0, 0, 0, 0.1);
+  top: 15px;
+  left: 15px;
+  border-radius: 4px 0 0 0;
 }

@@ -286,6 +286,10 @@ console.log("Syntax highlighted!");
 ### DOI References
 [Research Paper](doi:10.1234/example)
 
+## 9. Flashcards
+
+>>Front side>>Back side>>
+
 Each element has special features:
 
 1. Internal Links (`[[text]](url)`):
@@ -372,6 +376,10 @@ Each element has special features:
       - Abstract
       - Formatted citation
       - Link to full paper
+9. Flashcards `>>Front side>>Back side>>`
+   - Fancy flip animation
+   - Smooth transitions
+   - Click to flip
 
 ```
 All elements can be nested and combined (except code blocks), and they all support markdown formatting inside them.
