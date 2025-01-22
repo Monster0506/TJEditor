@@ -162,53 +162,8 @@ function demo() {
 
       <div className="editor-content">
         {showPreview && !showSplitScreen && (
-          <div className="preview-container">
-            <TJRenderer
-              content={content}
-              debounceMs={100}
-              calloutIcons={customCalloutIcons}
-              previewContent={handlePreview}
-              onCopy={handleCopy}
-              onLinkClick={handleLinkClick}
-              remarkPlugins={[]}
-              rehypePlugins={[]}
-            />
-          </div>
-        )}
-
-        {!showPreview && !showSplitScreen && (
-          <div className="preview-container">
-            <TJEditor
-              content={content}
-              onChange={handleChange}
-              theme="monochrome"
-              getLinkSuggestions={getLinkSuggestions}
-            />
-          </div>
-        )}
-
-        {showSplitScreen && (
-          <div className="split-container">
-            <div className="split-pane">
-              <div className="pane-header">
-                <span className="material-icons">edit_note</span>
-                Editor
-              </div>
-              <div className="preview-container">
-                <TJEditor
-                  content={content}
-                  onChange={handleChange}
-                  theme="ocean"
-                  getLinkSuggestions={getLinkSuggestions}
-                />
-              </div>
-            </div>
-
-            <div className="split-pane">
-              <div className="pane-header">
-                <span className="material-icons">preview</span>
-                Preview
-              </div>
+          <div className="preview-wrapper">
+            <div className="preview-container">
               <TJRenderer
                 content={content}
                 debounceMs={100}
@@ -219,6 +174,59 @@ function demo() {
                 remarkPlugins={[]}
                 rehypePlugins={[]}
               />
+            </div>
+          </div>
+        )}
+
+        {!showPreview && !showSplitScreen && (
+          <div className="preview-wrapper">
+            <div className="preview-container">
+              <TJEditor
+                content={content}
+                onChange={handleChange}
+                theme="monochrome"
+                getLinkSuggestions={getLinkSuggestions}
+              />
+            </div>
+          </div>
+        )}
+
+        {showSplitScreen && (
+          <div className="split-container">
+            <div className="split-pane">
+              <div className="pane-header">
+                <span className="material-icons">edit_note</span>
+                Editor
+              </div>
+              <div className="preview-wrapper">
+                <div className="preview-container">
+                  <TJEditor
+                    content={content}
+                    onChange={handleChange}
+                    theme="ocean"
+                    getLinkSuggestions={getLinkSuggestions}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="split-pane">
+              <div className="pane-header">
+                <span className="material-icons">preview</span>
+                Preview
+              </div>
+              <div className="preview-wrapper">
+                <TJRenderer
+                  content={content}
+                  debounceMs={100}
+                  calloutIcons={customCalloutIcons}
+                  previewContent={handlePreview}
+                  onCopy={handleCopy}
+                  onLinkClick={handleLinkClick}
+                  remarkPlugins={[]}
+                  rehypePlugins={[]}
+                />
+              </div>
             </div>
           </div>
         )}

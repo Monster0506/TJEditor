@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  width: 1200px;
+  margin: 0 auto;
   background: #ffffff;
   color: #1e293b;
   font-family:
@@ -99,11 +101,19 @@
   background: #f8fafc;
 }
 
+.preview-wrapper {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  height: 100%;
+}
+
 .preview-container {
   height: 100%;
   overflow: auto;
   padding: 2rem;
   background: #ffffff;
+  width: 100%;
 }
 
 .split-container {
@@ -122,6 +132,11 @@
   background: #ffffff;
   border-radius: 0.5rem;
   overflow: hidden;
+}
+
+.split-pane .preview-wrapper {
+  flex: 1;
+  max-width: none;
 }
 
 .split-pane > div:last-child {
@@ -168,6 +183,12 @@
 }
 
 /* Responsive Design */
+@media (max-width: 1240px) {
+  .example-container {
+    width: 100%;
+  }
+}
+
 @media (max-width: 768px) {
   .split-container {
     flex-direction: column;
