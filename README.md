@@ -1,5 +1,8 @@
 # TJEditor & TJRenderer Features
 
+TJEditor is a sophisticated text editor and renderer pair with powerful capabilities.
+
+
 ## Core Components
 
 ### 1. TJEditor
